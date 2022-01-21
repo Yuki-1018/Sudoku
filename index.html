@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+
+<style id="webmakerstyle">
+*{
+    margin: 0;
+}
+main{
+    width: 500px;
+    margin: auto;
+    user-select: none;
+}
+.clickdisable{
+    pointer-events: none;
+}
+.clickenable{
+    color: #6091d3;
+}
+table{
+    border-collapse: collapse;
+}
+.main{
+  overflow: hidden;
+}
+.main tr:hover{
+    background-color: #f3ece3;
+}
+.main td{
+ border: 1px solid #6091d3 ; 
+    text-align: center;
+    font-size:30px;
+    width: 45px;
+    height: 45px;
+    position: relative;
+}
+.main td:hover {
+    background-color: #f3ece3;
+  }
+  .main td:hover:after {
+    content: "";
+    background-color: #f3ece3;
+    width: 100%;
+    height: 200vh;
+    position: absolute;
+    top: -100vh;
+    left: 0;
+    z-index: -1;
+  }
+.select td:hover, .box div:hover{
+    background: #f3ece3;
+    cursor: pointer;
+}
+.main tr:first-child td{
+    border-top: 4px solid #6091d3;
+}
+.main tr:nth-of-type(3n) td{
+    border-bottom: 4px solid #6091d3;
+}
+.main td:first-child{
+    border-left: 4px solid #6091d3;
+}
+.main td:nth-of-type(3n){
+    border-right: 4px solid #6091d3;
+}
+.box{
+    margin-top: 10px;
+    display: flex;
+}
+.select{
+    margin-top: 20px;
+}
+.select td{
+    border: 2px #6091d3 solid;
+    text-align: center;
+    font-size:30px;
+    width: 45px;
+    height: 45px;
+}
+.mainClick{
+    background-color: #f3ece3;
+}
+.remove{
+    border: 2px #6091d3 solid;
+    border-radius: 10px;
+    text-align: center;
+    font-size:30px;
+    width: 100px;
+    height: 45px;
+}
+.check{
+    margin-right: 135px;
+    border: 2px #6091d3 solid;
+    border-radius: 10px;
+    text-align: center;
+    font-size:30px;
+    width: 200px;
+    height: 45px;
+}
+</style>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sudoku</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main>
+        <h1>数独</h1>
+        <table class="main"></table>
+        <table class="select"></table>
+        <div class="box">
+            <div class="check" onclick="check()">正解チェック</div>
+            <div class="remove" onclick="remove()">消す</div>
+        </div>
+        <h2></h2>
+    </main>
+    <script type="text/javascript" src="main.js"></script>
+</body>
+
+</html>
+
+<script>
+// 問題
+const question = [
+  [8, 7, 1, 0, 0, 0, 5, 6, 4],
+  [0, 9, 5, 0, 1, 7, 2, 3, 8],
+  [2, 0, 3, 4, 5, 8, 0, 7, 1],
+  [0, 2, 0, 1, 0, 3, 7, 9, 5],
+  [0, 1, 9, 2, 7, 0, 8, 4, 3],
+  [7, 0, 4, 0, 8, 5, 0, 0, 2],
+  [1, 5, 0, 0, 0, 4, 3, 8, 0],
+  [0, 8, 7, 5, 0, 0, 0, 0, 6],
+  [0, 0, 0, 0, 3, 2, 1, 0, 7],
+];
+
+// クリックされた要素を保持
+let place;
+
+init();
+// ゲーム画面生成
+function init() {
+  const main = document.querySelector(".main");
+  const select = document.querySelector(".select");
+  
+  for (let i = 0; i < 9; i++) {
+    let tr = document.createElement("tr");
+    for (let j = 0; j < 9; j++) {
+      let td = document.createElement("td");
+      td.onclick = mainClick;
+      tr.appendChild(td);
+      if (question[i][j] != 0) {
+        td.textContent = question[i][j];
+        td.classList.add("clickdisable");
+      } else {
+        td.textContent = null;
+        td.classList.add("clickenable");
+      }
+    }
+    main.appendChild(tr);
+  }
+
+  for (let i = 0; i < 9; i++) {
+    let td = document.createElement("td");
+    td.onclick = selectClick;
+    td.value = i + 1;
+    select.appendChild(td);
+    td.textContent = i + 1;
+  }
+}
+
+// 問題パネルのマスが押された時の処理
+function mainClick(e) {
+  if (place != undefined) {
+    place.classList.remove("mainClick");
+  }
+
+  place = e.target;
+  place.classList.add("mainClick");
+}
+
+// 数字選択のマスが押された時の処理
+function selectClick(e) {
+  place.textContent = e.target.value;
+}
+
+// 正解判定
+function check() {
+  const h2 = document.querySelector("h2");
+  const tr = document.querySelectorAll(".main tr");
+  let checkFlag = true;
+  // 横計算
+  for (let i = 0; i < 9; i++) {
+    let sum = 0;
+    let td = tr[i].querySelectorAll("td");
+    for (let j = 0; j < 9; j++) {
+      sum += Number(td[j].textContent);
+    }
+    if (sum != 45) {
+      checkFlag = false;
+      break;
+    }
+  }
+  // 縦計算
+  for (let i = 0; i < 9; i++) {
+    let sum = 0;
+    for (let j = 0; j < 9; j++) {
+      let td = tr[j].querySelectorAll("td");
+      sum += Number(td[i].textContent);
+    }
+    if (sum != 45) {
+      checkFlag = false;
+      break;
+    }
+  }
+  if (checkFlag) {
+    h2.textContent = "正解です!!";
+  } else {
+    h2.textContent = "間違いがあります";
+  }
+}
+
+//消す処理
+function remove() {
+  place.textContent = null;
+}
+//# sourceURL=userscript.js
+</script>
+</body>
+</html>
